@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "895162224111",
+    "firebase_url": "https://lone-worker-checkin.firebaseio.com",
+    "project_id": "lone-worker-checkin",
+    "storage_bucket": "lone-worker-checkin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895162224111:android:cbc65fd1460cae01",
+        "android_client_info": {
+          "package_name": "com.citrus.lone_worker_checkin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "895162224111-7qo4heruaf2bi0e21ih57cdrd36g6jf1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdrlyB2RZPnGrudIczctDZwlJk_YDY-C0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "895162224111-7qo4heruaf2bi0e21ih57cdrd36g6jf1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "895162224111-fb1hl779ii0hc3qpa7hvnmn0es7k73fn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.citrus.lone-worker-checkin"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
