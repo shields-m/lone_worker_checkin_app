@@ -1,48 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:lone_worker_checkin/Pages/list.dart';
 import 'dart:io' show Platform;
 
-import 'package:lone_worker_checkin/Pages/welcome.dart';
-
-
-void main() => runApp(MyApp());
-
-
-class MyApp extends StatelessWidget {
+class listPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Lone Worker Check-in',
-      home: welcomePage(),
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.green,
-
-      ),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  _listPageState createState() => _listPageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() {
-    return _MyHomePageState();
-  }
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
+class _listPageState extends State<listPage> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
@@ -116,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          border: Border.all(color: Colors.green),
           borderRadius: BorderRadius.circular(5.0),
         ),
         child: ListTile(
@@ -134,7 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
 class Record {
   final String name;
   final int votes;
