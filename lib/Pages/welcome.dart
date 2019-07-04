@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lone_worker_checkin/Pages/Manager/ManagerHome.dart';
 import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
+import 'package:lone_worker_checkin/Pages/Worker/WorkerHome.dart';
 
 
 class welcomePage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _welcomePageState extends State<welcomePage> {
   }
 
   Widget _buildBody(BuildContext context){
-   return Column(children: <Widget>[
+   return ListView(children: <Widget>[
      Padding(
        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 18.0),
        child:Text('Select the mode you would like to use ' + data),
@@ -88,7 +89,12 @@ class _welcomePageState extends State<welcomePage> {
              color: Colors.green,
              size: 30.0,
            ),
-
+             onTap: () {
+               Navigator.pushReplacement(
+                 context,
+                 MaterialPageRoute(builder: (context) => WorkerHome()),
+               );
+             }
 
 
          ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
@@ -14,13 +16,39 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      _code = randomAlphaNumeric(6).toUpperCase();
-      Firestore.instance.collection('devices').document(_code).setData({
-        'registrationToken': _code,
+    getNewCode().then((String value) {
+      setState(() {
+        //print(newCode);
+        _code = value;
+        Firestore.instance.collection('devices').document(_code).setData({
+          'registrationToken': _code,
+        });
       });
     });
   }
+
+  Future<String> getNewCode() async {
+    String _c = '';
+    bool newCode = false;
+    DocumentSnapshot doc;
+    while (!newCode) {
+      _c = randomAlphaNumeric(6).toUpperCase();
+      print('*********************************************' +_c);
+      doc = await Firestore.instance.collection('devices').document(_c).get();
+
+      newCode = doc.data == null;
+      print('*********************************************' + newCode.toString());
+
+
+    }
+
+    return _c;
+  }
+
+  /* print('Code: ' +
+  _c +
+  ' Token: ' +
+  DocumentSnapshot.data['registrationToken'].toString());*/
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +61,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return Column(
+    return ListView(
       children: <Widget>[
         Padding(
           key: ValueKey('title'),
@@ -77,7 +105,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
           child: MaterialButton(
-            onPressed: () => {},
+            onPressed: () => {Navigator.pop(context)},
             child: Text('Skip Waiting'),
           ),
         ),
@@ -137,7 +165,8 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
               child: RaisedButton(
                 onPressed: () => {Navigator.pop(context)},
                 child: Text('Done'),

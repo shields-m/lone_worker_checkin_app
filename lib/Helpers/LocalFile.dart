@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -9,14 +10,23 @@ Future<String> get _localPath async {
   return directory.path;
 }
 
-Future<File> get _localFile async {
+Future<File> get _guidFile async {
   final path = await _localPath;
   return File('$path/guid.txt');
 }
 
-Future<String> readContent() async {
+Future<File> get _tokenFile async {
+  final path = await _localPath;
+  return File('$path/token.txt');
+}
+
+Future<String> readContent(String f) async {
   try {
-    final file = await _localFile;
+    File file;
+    if (f == 'guid')
+      file = await _guidFile;
+    else
+      file = await _tokenFile;
     // Read the file
     String contents = await file.readAsString();
     // Returning the contents of the file
@@ -27,8 +37,12 @@ Future<String> readContent() async {
   }
 }
 
-Future<File> writeContent(String value) async {
-  final file = await _localFile;
+Future<File> writeContent(String value, String f) async {
+  File file;
+  if (f == 'guid')
+    file = await _guidFile;
+  else
+    file = await _tokenFile;
   // Write the file
 
   return file.writeAsString(value);
@@ -37,9 +51,8 @@ Future<File> writeContent(String value) async {
 Future<String> myDeviceId() async {
   bool _gotNew = false;
   var uuid = new Uuid();
-  final file = await _localFile;
   String _deviceId;
-  String _existing = await readContent();
+  String _existing = await readContent('guid');
   if (_existing == 'Error!' || _existing.trim() == '') {
     _deviceId = uuid.v1();
     _gotNew = true;
@@ -55,8 +68,37 @@ Future<String> myDeviceId() async {
   }
 
   if (_gotNew) {
-    await writeContent(_deviceId);
+    await writeContent(_deviceId, 'guid');
   }
   print(_deviceId);
   return _deviceId;
+}
+
+Future<String> myToken() async
+{
+  String _token;
+  String _existing = await readContent('token');
+  if (_existing == 'Error!' || _existing.trim() == '') {
+    _token = '';
+  } else {
+    _token = _existing;
+  }
+
+  print(_token);
+
+  return _token;
+}
+
+void saveToken(String token) async
+{
+  await writeContent(token, 'token');
+}
+
+void deleteToken() async
+{
+  File file;
+
+  file = await _tokenFile;
+
+  await file.delete();
 }

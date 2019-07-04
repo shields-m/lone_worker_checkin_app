@@ -17,7 +17,7 @@ class _ManagerHomeState extends State<ManagerHome> {
   }
 
   Widget _buildBody(BuildContext context){
-    return Column(children: <Widget>[
+    return ListView(children: <Widget>[
       Padding(
         key: ValueKey('AddDevice'),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
