@@ -11,8 +11,13 @@ void main() => runApp(MyApp());
 
 
 class MyApp extends StatelessWidget {
+
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
+
   @override
   Widget build(BuildContext context) {
+    firebaseCloudMessaging_Listeners();
     return MaterialApp(
       title: 'Lone Worker Check-in',
       home: welcomePage(),
@@ -32,30 +37,16 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
     );
   }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() {
-    return _MyHomePageState();
-  }
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
-  @override
-  void initState() {
-    super.initState();
-    firebaseCloudMessaging_Listeners();
-  }
 
   void firebaseCloudMessaging_Listeners() {
     if (Platform.isIOS) iOS_Permission();
 
     _firebaseMessaging.getToken().then((token){
       print(token);
+    });
+    _firebaseMessaging.onTokenRefresh.listen((newToken) {
+      print(newToken);
+      // send the new fcm to your server
     });
 
     _firebaseMessaging.configure(
@@ -80,6 +71,28 @@ class _MyHomePageState extends State<MyHomePage> {
       print("Settings registered: $settings");
     });
   }
+
+
+}
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() {
+    return _MyHomePageState();
+  }
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
+
+
 
 
   @override
