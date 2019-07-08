@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 Future<String> get _localPath async {
   final directory = await getApplicationDocumentsDirectory();
-  print(directory.path);
+  //print(directory.path);
   return directory.path;
 }
 
@@ -57,7 +57,7 @@ Future<String> myDeviceId() async {
     _deviceId = uuid.v1();
     _gotNew = true;
   } else {
-    print(uuid.parse((_existing)));
+    //print(uuid.parse((_existing)));
     var sum = uuid.parse((_existing)).reduce((a, b) => a + b);
     if (sum > 0) {
       _deviceId = _existing;
@@ -70,7 +70,7 @@ Future<String> myDeviceId() async {
   if (_gotNew) {
     await writeContent(_deviceId, 'guid');
   }
-  print(_deviceId);
+  //print(_deviceId);
   return _deviceId;
 }
 

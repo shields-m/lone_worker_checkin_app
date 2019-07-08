@@ -199,7 +199,7 @@ class _WorkerHomeState extends State<WorkerHome> {
                 'model': _model,
                 'id': deviceID,
                 'fbmToken' : _fbmToken,
-              });
+              },merge : true);
 
             }
           });

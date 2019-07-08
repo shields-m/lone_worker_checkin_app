@@ -1,8 +1,18 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:lone_worker_checkin/Helpers/Auth.dart';
+import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
+import 'package:lone_worker_checkin/Helpers/User.dart';
 import 'package:lone_worker_checkin/Pages/Manager/RegisterNewDevice.dart';
+
+AppUser appUser;
+final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+String _userDetails = '';
+bool _loading = false;
+String _errorMessage = "";
 
 class ManagerHome extends StatefulWidget {
   @override
@@ -20,15 +30,12 @@ class _ManagerHomeState extends State<ManagerHome> {
     );
   }
 
-  bool _loading = false;
-  String _errorMessage = "";
-
   Widget _handleCurrentScreen(BuildContext context) {
     return new StreamBuilder<FirebaseUser>(
         stream: FirebaseAuth.instance.onAuthStateChanged,
         builder: (BuildContext context, snapshot) {
           if (snapshot.hasData) {
-            return _buildBody(context);
+            return new ManagerModeBody();
           }
           return LoginScreen(context);
         });
@@ -69,7 +76,7 @@ class _ManagerHomeState extends State<ManagerHome> {
             borderRadius: BorderRadius.circular(5),
           ),
           onPressed: () {
-            signIn(_emailTextController.text, _passwordTextController.text);
+            logIn(_emailTextController.text, _passwordTextController.text);
           },
           padding: EdgeInsets.all(12),
           color: Colors.green,
@@ -82,7 +89,9 @@ class _ManagerHomeState extends State<ManagerHome> {
           'Forgot password?',
           style: TextStyle(color: Colors.black54),
         ),
-        onPressed: () {sendForgotPasswordEmail();},
+        onPressed: () {
+          forgotPassword();
+        },
       );
 
       return Scaffold(
@@ -122,72 +131,83 @@ class _ManagerHomeState extends State<ManagerHome> {
 
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  String _userEmail = '';
 
-  Future<String> signIn(String email, String password) async {
+  Future<String> logIn(String email, String password) async {
+    setState(() {
+      _errorMessage = '';
+      _loading = true;
+    });
+    signIn(_firebaseAuth, email, password).then((String message) {
+      setState(() {
+        _loading = false;
+        _errorMessage = message;
+      });
+    });
+  }
+
+
+
+  Future<String> forgotPassword() async {
     setState(() {
       _errorMessage = '';
       _loading = true;
     });
 
-    try {
-      FirebaseUser user = await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
-      print(user.uid);
-      return user.uid;
-    } catch (e) {
+    sendForgotPasswordEmail(_firebaseAuth, _emailTextController.text).then((String message){
       setState(() {
+        _errorMessage = message;
         _loading = false;
-        if (Platform.isIOS) {
-          _errorMessage = e.details;
-        } else
-          _errorMessage = e.message;
       });
-    }
-  }
-
-  Future<String> signOut() async {
-    await _firebaseAuth.signOut();
-  }
-
-  Future<String> sendForgotPasswordEmail() async {
-    setState(() {
-      _errorMessage = '';
 
     });
-    try {
-      await _firebaseAuth.sendPasswordResetEmail(
-          email: _emailTextController.text);
-      setState(() {
-        _errorMessage = "Password reset email sent.";
-      });
+  }
+}
 
-    }
-    catch(e) {
-      setState(() {
+class ManagerModeBody extends StatefulWidget {
+  @override
+  _ManagerModeBodyState createState() => _ManagerModeBodyState();
+}
 
-        if (Platform.isIOS) {
-          _errorMessage = e.details;
-        } else
-          _errorMessage = e.message;
+class _ManagerModeBodyState extends State<ManagerModeBody> {
+  @override
+  void initState() {
+    appUser = new AppUser();
+
+    _firebaseAuth.currentUser().then((FirebaseUser user) {
+      myDeviceId().then((String deviceID) {
+        Firestore.instance
+            .collection('users')
+            .document(user.uid)
+            .get()
+            .then((DocumentSnapshot doc) {
+          appUser.user = user;
+          appUser.deviceID = deviceID;
+          appUser.company = doc["company"].toString();
+          appUser.fullName = doc["fullname"].toString();
+          Firestore.instance
+              .collection('companies')
+              .document(appUser.company)
+              .get()
+              .then((DocumentSnapshot companydoc) {
+            appUser.companyName = companydoc["name"].toString();
+            setState(() {
+              _userDetails =
+                  appUser.fullName + ' (' + appUser.companyName + ')';
+            });
+          });
+        });
       });
-        }
+    });
+    super.initState();
   }
 
-  Widget _buildBody(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     _loading = false;
 
-    _firebaseAuth.currentUser().then((FirebaseUser u){
-
-      setState(() {
-        _userEmail = u.email;
-      });
-    });
     return ListView(
       children: <Widget>[
         Padding(
-
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Container(
             decoration: BoxDecoration(
@@ -195,14 +215,13 @@ class _ManagerHomeState extends State<ManagerHome> {
               borderRadius: BorderRadius.circular(5.0),
             ),
             child: ListTile(
-                title: Text(_userEmail),
-                trailing: Icon(
-                  Icons.person,
-                  color: Colors.green,
-                  size: 30.0,
-                ),
-
-                ),
+              title: Text(_userDetails),
+              trailing: Icon(
+                Icons.person,
+                color: Colors.green,
+                size: 30.0,
+              ),
+            ),
           ),
         ),
         Padding(
@@ -224,7 +243,7 @@ class _ManagerHomeState extends State<ManagerHome> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => RegisterNewDevice1()),
+                        builder: (context) => RegisterNewDevice1(appUser)),
                   );
                 }),
           ),
@@ -280,7 +299,7 @@ class _ManagerHomeState extends State<ManagerHome> {
                 size: 30.0,
               ),
               onTap: () {
-                signOut();
+                signOut(_firebaseAuth);
               },
             ),
           ),

@@ -2,9 +2,17 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lone_worker_checkin/Helpers/User.dart';
 import 'package:random_string/random_string.dart';
 
 class RegisterNewDevice1 extends StatefulWidget {
+AppUser _appUser = new AppUser();
+
+
+ RegisterNewDevice1(AppUser appUser){
+  this._appUser = appUser;
+}
+
   @override
   _RegisterNewDevice1State createState() => _RegisterNewDevice1State();
 }
@@ -22,6 +30,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
         _code = value;
         Firestore.instance.collection('devices').document(_code).setData({
           'registrationToken': _code,
+          'company' : this.widget._appUser.company,
         });
       });
     });
