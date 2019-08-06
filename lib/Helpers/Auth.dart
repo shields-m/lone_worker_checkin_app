@@ -28,6 +28,7 @@ Future<String> signIn(FirebaseAuth _firebaseAuth, String email, String password)
 
 Future<String> signOut(FirebaseAuth _firebaseAuth) async {
   await _firebaseAuth.signOut();
+  return "done";
 }
 
 Future<String> sendForgotPasswordEmail(FirebaseAuth _firebaseAuth, String email) async {

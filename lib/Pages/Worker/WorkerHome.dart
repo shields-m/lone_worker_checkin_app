@@ -179,7 +179,7 @@ class _WorkerHomeState extends State<WorkerHome> {
             _validationError = '';
             if (!valid)
               _validationError =
-                  "The code you entered is invalid, please rety.";
+                  "The code you entered is invalid, please retry.";
             else if (_deviceNameController.text.trim() == '')
               _validationError =
                   "You must enter a device name, plese try again.";
@@ -252,7 +252,7 @@ class _WorkerHomeState extends State<WorkerHome> {
     _c = doc.data != null;
 
     if (_c) {
-      _c = doc.data['id'] == null;
+      _c = doc.data['id'] == '';
     }
     print(_c);
     return _c;

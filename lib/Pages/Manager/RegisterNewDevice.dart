@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
 import 'package:lone_worker_checkin/Helpers/User.dart';
 import 'package:random_string/random_string.dart';
 
@@ -31,6 +32,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
         Firestore.instance.collection('devices').document(_code).setData({
           'registrationToken': _code,
           'company' : this.widget._appUser.company,
+          'id' : '',
         });
       });
     });
@@ -52,6 +54,15 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
     }
 
     return _c;
+  }
+
+  Future<void> CancelRegistration() async
+  {
+
+    await Firestore.instance.collection('devices').document(_code).delete();
+
+    Navigator.pop(context);
+
   }
 
   /* print('Code: ' +
@@ -116,6 +127,13 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
           child: MaterialButton(
             onPressed: () => {Navigator.pop(context)},
             child: Text('Skip Waiting'),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+          child: RaisedButton(
+            onPressed: CancelRegistration,
+            child: Text('Cancel this registration'),
           ),
         ),
       ],

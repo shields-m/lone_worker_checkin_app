@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:lone_worker_checkin/Helpers/Auth.dart';
 import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
 import 'package:lone_worker_checkin/Helpers/User.dart';
+import 'package:lone_worker_checkin/Pages/Manager/NewJob.dart';
 import 'package:lone_worker_checkin/Pages/Manager/RegisterNewDevice.dart';
 
 AppUser appUser;
@@ -263,6 +264,13 @@ class _ManagerModeBodyState extends State<ManagerModeBody> {
                 color: Colors.green,
                 size: 30.0,
               ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => NewJob(appUser)),
+                  );
+                },
             ),
           ),
         ),
