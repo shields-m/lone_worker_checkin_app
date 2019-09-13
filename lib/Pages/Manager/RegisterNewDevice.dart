@@ -6,6 +6,8 @@ import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
 import 'package:lone_worker_checkin/Helpers/User.dart';
 import 'package:random_string/random_string.dart';
 
+bool deleting = false;
+
 class RegisterNewDevice1 extends StatefulWidget {
 AppUser _appUser = new AppUser();
 
@@ -25,6 +27,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    deleting = false;
     getNewCode().then((String value) {
       setState(() {
         //print(newCode);
@@ -56,12 +59,18 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
     return _c;
   }
 
-  Future<void> CancelRegistration() async
+  Future<void> CancelRegistration()
   {
-
-    await Firestore.instance.collection('devices').document(_code).delete();
+setState(() {
+  deleting = true;
+  Firestore.instance.collection('devices').document(_code).delete().then((var x){
 
     Navigator.pop(context);
+  });
+});
+
+
+
 
   }
 
@@ -74,7 +83,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register New Device'),
+        title: Text('Register New Device'),centerTitle: true,
       ),
       body: _buildBody(context),
     );
@@ -145,7 +154,15 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
       stream:
           Firestore.instance.collection('devices').document(_code).snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data['name'] == null)
+        if (deleting)
+          {
+            return Column(children: <Widget>[
+              LinearProgressIndicator(),
+              Text('Cancelling'),
+            ],);
+          }
+
+        if ( (!snapshot.hasData || snapshot.data['name'] == null))
           return _buildWaiting(context);
         var deviceData = snapshot.data;
 
@@ -157,7 +174,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
               child: Container(
                 child: ListTile(
                   title: Text('Device Name'),
-                  trailing: Text(deviceData['name']),
+                  subtitle: Text(deviceData['name']),
                 ),
               ),
             ),
@@ -167,7 +184,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
               child: Container(
                 child: ListTile(
                   title: Text('Device Model'),
-                  trailing: Text(deviceData['model']),
+                  subtitle: Text(deviceData['model']),
                 ),
               ),
             ),
@@ -177,7 +194,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
               child: Container(
                 child: ListTile(
                   title: Text('Device Platform'),
-                  trailing: Text(deviceData['platform']),
+                  subtitle: Text(deviceData['platform']),
                 ),
               ),
             ),
@@ -187,7 +204,7 @@ class _RegisterNewDevice1State extends State<RegisterNewDevice1> {
               child: Container(
                 child: ListTile(
                   title: Text('Device ID'),
-                  trailing: Text(deviceData['id']),
+                  subtitle: Text(deviceData['id']),
                 ),
               ),
             ),

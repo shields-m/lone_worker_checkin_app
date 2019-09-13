@@ -6,6 +6,9 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lone_worker_checkin/Helpers/LocalFile.dart';
+import 'package:lone_worker_checkin/Helpers/Constants.dart';
+import 'package:lone_worker_checkin/Pages/listJobs.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class WorkerHome extends StatefulWidget {
   @override
@@ -15,7 +18,9 @@ class WorkerHome extends StatefulWidget {
 class _WorkerHomeState extends State<WorkerHome> {
   @override
   final  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  String _token;
+  String _token = '.';
+  String _deviceName = '';
+  String _dn = '';
   String _validationError;
   final _deviceTokenController = TextEditingController();
   final _deviceNameController = TextEditingController();
@@ -25,15 +30,44 @@ class _WorkerHomeState extends State<WorkerHome> {
     super.initState();
     _validationError = '';
     myToken().then((String value) {
-      setState(() {
-        _token = value;
-      });
+      if(value != '') {
+        Firestore.instance
+            .collection('devices')
+            .document(value)
+            .get()
+            .then((DocumentSnapshot doc) {
+
+          //_dn = doc["name"].toString();
+
+
+          setState(() {
+            _deviceName =  doc["name"].toString();
+            _token = value;
+          });
+
+          });
+
+      }
+      else {
+        setState(() {
+
+          _token = value;
+        });
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_token == '') {
+    if (_token == '.') {
+      //Unregistered Device
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Lone Worker Mode'),
+        ),
+        body: new LinearProgressIndicator(),
+      );
+    } else if (_token == '') {
       //Unregistered Device
       return Scaffold(
         appBar: AppBar(
@@ -53,18 +87,68 @@ class _WorkerHomeState extends State<WorkerHome> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Text(_token),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
-          child: RaisedButton(
-            onPressed: unregisterDevice,
-            child: Text('Unregister Device'),
-          ),
-        ),
-      ],
-    );
+    return
+        ListView(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Container(
+                decoration: menuDecoration(),
+                child: ListTile(
+                  title: Text(_deviceName),
+                  trailing: Icon(
+                    Icons.phone_android,
+                    color: Colors.green,
+                    size: 30.0,
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Center(
+                child: Text(
+                  'My Jobs',
+                  style: titleText,
+                ),
+              ),
+            ),
+            Padding(
+              key: ValueKey('AddDevice'),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Container(
+                decoration: menuDecoration(),
+                child: ListTile(
+                    title: Text('My Active Jobs'),
+                    trailing: Icon(
+                      Icons.assignment,
+                      color: Colors.green,
+                      size: 30.0,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ListJobs(_token,''),
+
+                        ),
+                      );
+                    }),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+              child: RaisedButton(
+                onPressed: unregisterDevice,
+                child: Text('Unregister Device'),
+              ),
+            ),
+
+          ],
+        );
+
+
+
   }
 
   Widget _buildRegister(BuildContext context) {
